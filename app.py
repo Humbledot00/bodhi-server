@@ -8,6 +8,10 @@ from processing import TextAnalyzer, TextSimplifier, generate_mnemonic, generate
 app = Flask(__name__)
 CORS(app) 
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Example usage
+model.to(device)
 
 def process_text(sample_text):
     analyzer = TextAnalyzer()
