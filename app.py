@@ -12,6 +12,8 @@ import os
 
 
 from processing import generate_mnemonic, generate_story, generate_summary
+from sound import generate_mnemonic_for_word
+
 
 
 app = Flask(__name__)
@@ -100,7 +102,12 @@ def generate():
     data = request.json
     print(data)
     input_text = data.get('input_text', '')
-    processed_html = "process_text(input_text)"
+    selected_model = data.get('model', '')  
+    if selected_model == 'lite':
+        processed_html = generate_mnemonic_for_word(input_text)
+    else:
+        processed_html = process_text(input_text)
+    print(processed_html)
     return jsonify({'generated_sentence': processed_html})
 
 
