@@ -10,7 +10,10 @@ import torch
 
 model = AutoModelForCausalLM.from_pretrained("microsoft/phi-2", torch_dtype="auto", trust_remote_code=True)
 tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2", trust_remote_code=True)
-    
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Example usage
+model.to(device)
 ########################################################################################
 # TEXT ANALYSIS (Key Points Extraction)
 ########################################################################################
