@@ -17,8 +17,6 @@ CORS(app)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Example usage
-model.to(device)
 
 ########################################################################################
 # TEXT ANALYSIS (Key Points Extraction)
