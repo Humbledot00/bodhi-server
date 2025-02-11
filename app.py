@@ -1,8 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
+import spacy
+from typing import List, Dict
+from collections import Counter
+import re
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+import torch
 
-from processing import TextAnalyzer, TextSimplifier, generate_mnemonic, generate_story, generate_summary
+from processing import generate_mnemonic, generate_story, generate_summary
 
 
 app = Flask(__name__)
@@ -12,6 +19,52 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Example usage
 model.to(device)
+
+########################################################################################
+# TEXT ANALYSIS (Key Points Extraction)
+########################################################################################
+class TextAnalyzer:
+    def __init__(self):
+        # Load English language model
+        self.nlp = spacy.load("en_core_web_sm")
+
+    def preprocess_text(self, text: str) -> str:
+        """Clean and preprocess the input text."""
+        text = re.sub(r'[^\w\s.]', '', text)  # Remove special characters
+        text = re.sub(r'\s+', ' ', text)  # Remove extra whitespace
+        return text.strip()
+
+    def get_key_points(self, text: str) -> Dict[str, List[str]]:
+        """Extract key points from the input text using NLP techniques."""
+        cleaned_text = self.preprocess_text(text)
+        doc = self.nlp(cleaned_text)
+        sentences = [sent.text.strip() for sent in doc.sents]
+        
+        # Calculate sentence importance using TF-IDF
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(sentences)
+
+        # Calculate sentence scores
+        sentence_scores = []
+        for i, sent in enumerate(doc.sents):
+            score = np.sum(tfidf_matrix[i].toarray())
+            entities_bonus = len([ent for ent in sent.ents])
+            pos_bonus = len([token for token in sent if token.pos_ in ['NOUN', 'VERB', 'PROPN']])
+            total_score = score + (0.1 * entities_bonus) + (0.05 * pos_bonus)
+            sentence_scores.append((sent.text.strip(), total_score))
+        
+        ranked_sentences = sorted(sentence_scores, key=lambda x: x[1], reverse=True)
+        
+        entities = [ent.text for ent in doc.ents]
+        key_entities = Counter(entities).most_common(5)
+        noun_chunks = [chunk.text for chunk in doc.noun_chunks]
+        main_topics = Counter(noun_chunks).most_common(5)
+        
+        return {
+            'key_points': [sent for sent, score in ranked_sentences[:3]],
+            'main_topics': [topic for topic, count in main_topics],
+        }
+
 
 def process_text(sample_text):
     analyzer = TextAnalyzer()
