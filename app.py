@@ -8,6 +8,8 @@ import re
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 import torch
+import os
+
 
 from processing import generate_mnemonic, generate_story, generate_summary
 
