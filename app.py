@@ -24,8 +24,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def process_text(sample_text):
-    analyzer = TextAnalyzer()
-
     # Generate summaries and mnemonic
     mnemonic = generate_mnemonic(sample_text)
     summary = generate_summary(sample_text)
