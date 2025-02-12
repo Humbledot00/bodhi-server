@@ -21,7 +21,11 @@ CORS(app)
 CORS(app, origins=["https://bodhiment.vercel.app"])
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
+    nlp = spacy.load("en_core_web_sm")
 
 ########################################################################################
 # TEXT ANALYSIS (Key Points Extraction)
