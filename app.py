@@ -105,8 +105,9 @@ def generate():
     input_text = data.get('input_text', '')
     selected_model = data.get('model', '')  
     processed_html = process_text(input_text)
-    print(processed_html)
-    return jsonify({'generated_sentence': processed_html})
+    response = jsonify({'generated_sentence': processed_html})
+    response.headers.add("Access-Control-Allow-Origin", "https://bodhiment.vercel.app")
+    return response
 
 
 if __name__ == '__main__':
