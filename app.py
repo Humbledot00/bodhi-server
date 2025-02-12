@@ -18,6 +18,7 @@ from processing import generate_mnemonic, generate_story, generate_summary
 
 app = Flask(__name__)
 CORS(app) 
+CORS(app, origins=["https://bodhiment.vercel.app"])
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
